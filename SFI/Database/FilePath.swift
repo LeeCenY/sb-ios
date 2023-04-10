@@ -4,13 +4,19 @@ class FilePath {
     static let packageName = Bundle.main.bundleIdentifier ?? "org.sagernet.sfi"
     static let groupName = "group.\(packageName)"
 
-    static let sharedDirectory: URL! = FileManager().containerURL(forSecurityApplicationGroupIdentifier: groupName)
+    static let sharedDirectory: URL! = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: groupName)
 
     static let cacheDirectory = sharedDirectory
         .appendingPathComponent("Library", isDirectory: true)
         .appendingPathComponent("Caches", isDirectory: true)
 
     static let workingDirectory = cacheDirectory.appendingPathComponent("Working", isDirectory: true)
+    static let iCloudDirectory = FileManager.default.url(forUbiquityContainerIdentifier: nil)!.appendingPathComponent("Documents", isDirectory: true)
+
+    static func destroy() {
+        try? FileManager.default.removeItem(at: sharedDirectory.appendingPathComponent("configs", isDirectory: true))
+        ProfileManager.destroy()
+    }
 }
 
 extension URL {
@@ -29,7 +35,7 @@ extension URL {
             return nil
         }
         let size = try urls.lazy.reduce(0) {
-            (try $1.resourceValues(forKeys: [.totalFileAllocatedSizeKey]).totalFileAllocatedSize ?? 0) + $0
+            try ($1.resourceValues(forKeys: [.totalFileAllocatedSizeKey]).totalFileAllocatedSize ?? 0) + $0
         }
         let formatter = ByteCountFormatter()
         formatter.countStyle = .file

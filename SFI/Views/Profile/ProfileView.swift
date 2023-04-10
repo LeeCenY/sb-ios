@@ -15,17 +15,15 @@ struct ProfileView: View {
                 if isLoading {
                     ProgressView().onAppear(perform: doReload)
                 } else {
-                    if editMode != .active {
-                        NavigationLink {
-                            NewProfileView(isLoading: $isLoading).navigationTitle("New Profile")
-                        } label: {
-                            Text("New Profile").foregroundColor(.accentColor)
-                        }
-                    }
+                    NavigationLink {
+                        NewProfileView(isLoading: $isLoading).navigationTitle("New Profile")
+                    } label: {
+                        Text("New Profile").foregroundColor(.accentColor)
+                    }.disabled(editMode.isEditing)
                     List {
                         ForEach(profileList, id: \.id) { profile in
                             viewBuilder {
-                                if editMode == .active {
+                                if editMode.isEditing == true {
                                     Text(profile.name)
                                 } else {
                                     NavigationLink {
@@ -33,12 +31,6 @@ struct ProfileView: View {
                                     } label: {
                                         Text(profile.name)
                                     }
-                                }
-                            }
-
-                            .contextMenu {
-                                Button(role: .destructive) {} label: {
-                                    Label("Delete", systemImage: "trash")
                                 }
                             }
                         }
@@ -49,9 +41,9 @@ struct ProfileView: View {
             }
             .navigationTitle("Profiles")
             .navigationBarItems(trailing: EditButton())
+            .environment(\.editMode, $editMode)
         }
         .navigationViewStyle(.stack)
-        .environment(\.editMode, $editMode)
         .alert(isPresented: $errorPresented) {
             Alert(
                 title: Text("Error"),
@@ -62,7 +54,7 @@ struct ProfileView: View {
     }
 
     private func doReload() {
-        Task {
+        Task.detached {
             fetchProfiles()
         }
     }
@@ -78,7 +70,7 @@ struct ProfileView: View {
     }
 
     func deleteProfile(_ profile: ConfigProfile) {
-        Task {
+        Task.detached {
             do {
                 _ = try ProfileManager.shared().delete(profile)
                 isLoading = true
@@ -107,7 +99,7 @@ struct ProfileView: View {
             profileList[index]
         }
         profileList.remove(atOffsets: profileIndex)
-        Task {
+        Task.detached {
             do {
                 _ = try ProfileManager.shared().delete(profileToDelete)
             } catch {

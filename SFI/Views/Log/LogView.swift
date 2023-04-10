@@ -2,17 +2,14 @@ import Libbox
 import SwiftUI
 
 struct LogView: View {
-    @Binding var currentPage: MainView.Page
+    @Environment(\.currentPage) var currentPage
 
-    @State var isLoading: Bool = true
-    @State var isConnected: Bool = false
-    @State var logList: [String] = []
-    @State var commandClient: LibboxCommandClient!
+    @State private var isLoading: Bool = true
+    @State private var isConnected: Bool = false
+    @State private var logList: [String] = []
+    @State private var commandClient: LibboxCommandClient!
 
-    @State var errorPresented: Bool = false
-    @State var errorMessage = ""
-
-    let logFont = Font.system(.caption, design: .monospaced)
+    private let logFont = Font.system(.caption, design: .monospaced)
 
     var body: some View {
         NavigationView {
@@ -38,7 +35,7 @@ struct LogView: View {
                             }
                         }
                     }
-                    .onChange(of: currentPage) { newPage in
+                    .onChange(of: currentPage.wrappedValue) { newPage in
                         if newPage == MainView.Page.logs, !isConnected {
                             doReload()
                         }
@@ -56,7 +53,7 @@ struct LogView: View {
     }
 
     private func doReload() {
-        Task {
+        Task.detached {
             connect()
         }
     }

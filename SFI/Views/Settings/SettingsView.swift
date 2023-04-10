@@ -20,7 +20,7 @@ struct SettingsView: View {
             Form {
                 if isLoading {
                     ProgressView().onAppear {
-                        Task {
+                        Task.detached {
                             loadSettings()
                         }
                     }
@@ -30,30 +30,36 @@ struct SettingsView: View {
                             NavigationLink(destination: PProfServerSettingsView()) {
                                 Text("PProf Server")
                             }
+                            Button("Reset Database") {
+                                Task.detached {
+                                    FilePath.destroy()
+                                }
+                            }
+                            .foregroundColor(.red)
                         }
                     #endif
                     Section("Packet Tunnel") {
                         Toggle("Include All Networks", isOn: $includeAllNetworks)
                             .onChange(of: includeAllNetworks) { newValue in
-                                Task {
+                                Task.detached {
                                     SharedPreferences.includeAllNetworks = newValue
                                 }
                             }
                         Toggle("Exclude Local Networks", isOn: $excludeLocalNetworks)
                             .onChange(of: excludeLocalNetworks) { newValue in
-                                Task {
+                                Task.detached {
                                     SharedPreferences.excludeLocalNetworks = newValue
                                 }
                             }
                         Toggle("Enforce Routes", isOn: $enforceRoutes)
                             .onChange(of: enforceRoutes) { newValue in
-                                Task {
+                                Task.detached {
                                     SharedPreferences.enforceRoutes = newValue
                                 }
                             }
                         Toggle("Disable Memory Limit", isOn: $disableMemoryLimit)
                             .onChange(of: disableMemoryLimit) { newValue in
-                                Task {
+                                Task.detached {
                                     SharedPreferences.disableMemoryLimit = newValue
                                 }
                             }
@@ -61,8 +67,11 @@ struct SettingsView: View {
                     Section("Core") {
                         LineView(name: "Version", value: version)
                         LineView(name: "Data Size", value: dataSize)
+                        NavigationLink(destination: ServiceLogView()) {
+                            Text("View Service Log")
+                        }
                         Button("Clear Working Directory") {
-                            Task {
+                            Task.detached {
                                 clearWorkingDirectory()
                             }
                         }
