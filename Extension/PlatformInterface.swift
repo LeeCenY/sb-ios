@@ -129,4 +129,20 @@ class PlatformInterface: NSObject, LibboxPlatformInterfaceProtocol {
         }
         commandServer.writeMessage(message)
     }
+
+    func usePlatformDefaultInterfaceMonitor() -> Bool {
+        false
+    }
+
+    func startDefaultInterfaceMonitor(_: LibboxInterfaceUpdateListenerProtocol?) throws {}
+
+    func closeDefaultInterfaceMonitor(_: LibboxInterfaceUpdateListenerProtocol?) throws {}
+
+    func useGetter() -> Bool {
+        false
+    }
+
+    func getInterfaces() throws -> LibboxNetworkInterfaceIteratorProtocol {
+        throw NSError(domain: "not implemented", code: 0)
+    }
 }
