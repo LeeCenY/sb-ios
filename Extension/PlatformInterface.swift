@@ -105,6 +105,10 @@ class PlatformInterface: NSObject, LibboxPlatformInterfaceProtocol {
         }
     }
 
+    func usePlatformAutoDetectControl() -> Bool {
+        true
+    }
+
     func autoDetectControl(_: Int32) throws {}
 
     func findConnectionOwner(_: Int32, sourceAddress _: String?, sourcePort _: Int32, destinationAddress _: String?, destinationPort _: Int32, ret0_ _: UnsafeMutablePointer<Int32>?) throws {
